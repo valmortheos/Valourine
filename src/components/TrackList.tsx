@@ -45,8 +45,8 @@ export const TrackList: React.FC<TrackListProps> = ({ tracks, currentTrackId, on
                 </div>
               )}
             </div>
-            <div className="flex-1 text-left">
-              <h3 className={`font-semibold truncate ${currentTrackId === track.id ? 'text-black' : 'text-slate-800'}`}>
+            <div className="flex-1 min-w-0 text-left">
+              <h3 className={`font-semibold truncate pr-2 ${currentTrackId === track.id ? 'text-black' : 'text-slate-800'}`}>
                 {track.title}
               </h3>
               <p className="text-xs text-slate-500 font-medium truncate uppercase tracking-wider">Local Track</p>
