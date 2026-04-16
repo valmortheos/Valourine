@@ -24,15 +24,42 @@ export default function App() {
   const colors = useColorExtractor(currentTrack?.thumbnail);
 
   useEffect(() => {
-    // Try API first (for dev/local), fallback to static tracks.json (for GitHub Pages)
-    fetch('/api/tracks')
-      .then((res) => {
-        if (!res.ok) throw new Error('API not available');
-        return res.json();
-      })
-      .catch(() => fetch('./tracks.json').then(res => res.json()))
-      .then((data) => setTracks(data))
-      .catch((err) => console.error('Failed to fetch tracks', err));
+    const fetchWithCheck = async (url: string) => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`Expected JSON but received ${contentType || 'unknown content'}`);
+      }
+      
+      return res.json();
+    };
+
+    const loadTracks = async () => {
+      try {
+        // 1. Try internal API (Dev/Local)
+        const data = await fetchWithCheck('/api/tracks');
+        if (Array.isArray(data) && data.length > 0) {
+          setTracks(data);
+          return;
+        }
+        throw new Error('API returned empty tracks');
+      } catch (apiErr) {
+        console.warn('API fetch failed, trying static fallback:', apiErr);
+        
+        try {
+          // 2. Try static tracks.json (GitHub Pages fallback)
+          const staticData = await fetchWithCheck('./tracks.json');
+          setTracks(Array.isArray(staticData) ? staticData : []);
+        } catch (staticErr) {
+          console.error('All fetch attempts failed:', staticErr);
+          setTracks([]);
+        }
+      }
+    };
+
+    loadTracks();
 
     // Request notification permission
     if ('Notification' in window && Notification.permission === 'default') {
