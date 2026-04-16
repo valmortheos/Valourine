@@ -24,8 +24,13 @@ export default function App() {
   const colors = useColorExtractor(currentTrack?.thumbnail);
 
   useEffect(() => {
+    // Try API first (for dev/local), fallback to static tracks.json (for GitHub Pages)
     fetch('/api/tracks')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('API not available');
+        return res.json();
+      })
+      .catch(() => fetch('./tracks.json').then(res => res.json()))
       .then((data) => setTracks(data))
       .catch((err) => console.error('Failed to fetch tracks', err));
 
