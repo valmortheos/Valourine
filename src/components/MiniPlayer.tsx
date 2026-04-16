@@ -24,17 +24,17 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
     <motion.div
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-6 left-4 right-4 bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-3 shadow-2xl z-40"
+      className="fixed bottom-6 left-4 right-4 bg-white/40 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-3 shadow-2xl z-40 transition-colors"
     >
       <div className="flex items-center gap-3">
         <div 
-          className="relative w-12 h-12 flex-shrink-0 cursor-pointer"
+          className="relative w-14 h-14 flex-shrink-0 cursor-pointer"
           onClick={onExpand}
         >
           <img
             src={track.thumbnail}
             alt={track.title}
-            className="w-full h-full object-cover rounded-xl shadow-lg"
+            className="w-full h-full object-cover rounded-[1.5rem] shadow-lg"
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
@@ -43,14 +43,14 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
         </div>
         
         <div className="flex-1 min-w-0" onClick={onExpand}>
-          <h4 className="font-semibold text-sm truncate">{track.title}</h4>
-          <p className="text-xs text-gray-400 truncate">Now Playing</p>
+          <h4 className="font-bold text-slate-900 text-sm truncate">{track.title}</h4>
+          <p className="text-xs text-slate-500 font-medium truncate">Now Playing</p>
         </div>
 
         <div className="flex items-center gap-1">
           <button
             onClick={onTogglePlay}
-            className="p-3 rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all"
+            className="p-3 rounded-full bg-black text-white hover:scale-105 active:scale-95 shadow-lg transition-all"
           >
             {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
           </button>
@@ -64,9 +64,9 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
       </div>
       
       {/* Progress bar */}
-      <div className="absolute bottom-0 left-4 right-4 h-1 bg-white/10 rounded-full overflow-hidden">
+      <div className="absolute bottom-0 left-6 right-6 h-1 bg-black/5 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-white"
+          className="h-full bg-black"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.1 }}

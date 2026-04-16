@@ -35,15 +35,53 @@ export default function App() {
     }
   }, []);
 
-  const showNotification = (track: Track) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Valourine', {
-        body: `Now Playing: ${track.title}`,
-        icon: track.thumbnail,
-        silent: true,
-      });
+  useEffect(() => {
+    if (!currentTrack || !audioRef.current || !('mediaSession' in navigator)) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: currentTrack.title,
+      artist: 'Valourine Player',
+      album: 'Internal Music',
+      artwork: [
+        { src: currentTrack.thumbnail, sizes: '96x96', type: 'image/jpeg' },
+        { src: currentTrack.thumbnail, sizes: '128x128', type: 'image/jpeg' },
+        { src: currentTrack.thumbnail, sizes: '192x192', type: 'image/jpeg' },
+        { src: currentTrack.thumbnail, sizes: '256x256', type: 'image/jpeg' },
+        { src: currentTrack.thumbnail, sizes: '384x384', type: 'image/jpeg' },
+        { src: currentTrack.thumbnail, sizes: '512x512', type: 'image/jpeg' },
+      ],
+    });
+
+    navigator.mediaSession.setActionHandler('play', () => {
+      audioRef.current?.play();
+      setIsPlaying(true);
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    });
+    navigator.mediaSession.setActionHandler('previoustrack', handlePrev);
+    navigator.mediaSession.setActionHandler('nexttrack', handleNext);
+    navigator.mediaSession.setActionHandler('seekto', (details) => {
+      if (details.seekTime !== undefined && audioRef.current) {
+        audioRef.current.currentTime = details.seekTime;
+      }
+    });
+
+    return () => {
+      navigator.mediaSession.setActionHandler('play', null);
+      navigator.mediaSession.setActionHandler('pause', null);
+      navigator.mediaSession.setActionHandler('previoustrack', null);
+      navigator.mediaSession.setActionHandler('nexttrack', null);
+      navigator.mediaSession.setActionHandler('seekto', null);
+    };
+  }, [currentTrack]);
+
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
     }
-  };
+  }, [isPlaying]);
 
   const handleTrackSelect = (track: Track) => {
     if (currentTrack?.id === track.id) {
@@ -53,7 +91,6 @@ export default function App() {
 
     setCurrentTrack(track);
     setIsPlaying(true);
-    showNotification(track);
     
     if (audioRef.current) {
       audioRef.current.src = track.url;
@@ -112,7 +149,7 @@ export default function App() {
       className="min-h-screen transition-colors duration-700 ease-in-out overflow-x-hidden"
       style={{ 
         backgroundColor: colors.primary,
-        backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8))` 
+        backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.9))` 
       }}
     >
       <audio
@@ -122,9 +159,9 @@ export default function App() {
         className="hidden"
       />
 
-      <header className="p-6 pt-12">
-        <h1 className="text-4xl font-black tracking-tighter">Valourine</h1>
-        <p className="text-white/50 text-sm font-medium">Your Personal Soundscape</p>
+      <header className="p-8 pt-16">
+        <h1 className="text-5xl font-black tracking-tighter text-slate-900">Valourine</h1>
+        <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">Personal Soundscape</p>
       </header>
 
       <main className="max-w-2xl mx-auto">

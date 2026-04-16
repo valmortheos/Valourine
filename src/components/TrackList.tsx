@@ -22,10 +22,10 @@ export const TrackList: React.FC<TrackListProps> = ({ tracks, currentTrackId, on
           <button
             key={track.id}
             onClick={() => onTrackSelect(track)}
-            className={`flex items-center gap-4 p-3 rounded-2xl transition-all active:scale-95 ${
+            className={`flex items-center gap-4 p-4 rounded-[2.5rem] transition-all active:scale-95 border border-white/40 backdrop-blur-md ${
               currentTrackId === track.id
-                ? 'bg-white/10 shadow-lg'
-                : 'hover:bg-white/5'
+                ? 'bg-white/60 shadow-xl'
+                : 'bg-white/30 hover:bg-white/40 shadow-sm'
             }`}
           >
             <div className="relative w-14 h-14 flex-shrink-0">
@@ -46,13 +46,13 @@ export const TrackList: React.FC<TrackListProps> = ({ tracks, currentTrackId, on
               )}
             </div>
             <div className="flex-1 text-left">
-              <h3 className={`font-medium truncate ${currentTrackId === track.id ? 'text-white' : 'text-gray-200'}`}>
+              <h3 className={`font-semibold truncate ${currentTrackId === track.id ? 'text-black' : 'text-slate-800'}`}>
                 {track.title}
               </h3>
-              <p className="text-sm text-gray-400 truncate">Local Track</p>
+              <p className="text-xs text-slate-500 font-medium truncate uppercase tracking-wider">Local Track</p>
             </div>
-            <div className="p-2 rounded-full bg-white/5">
-              <Play size={16} className={currentTrackId === track.id ? 'fill-white text-white' : 'text-gray-400'} />
+            <div className={`p-3 rounded-full ${currentTrackId === track.id ? 'bg-black text-white' : 'bg-black/5 text-slate-400'}`}>
+              <Play size={16} className={currentTrackId === track.id ? 'fill-current' : ''} />
             </div>
           </button>
         ))
