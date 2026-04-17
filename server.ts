@@ -11,9 +11,10 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  const musicDir = path.join(__dirname, "public", "music");
-  const thumbDir = path.join(__dirname, "public", "musict");
-  const metadataPath = path.join(__dirname, "music-metadata.json");
+  const root = process.cwd();
+  const musicDir = path.join(root, "public", "music");
+  const thumbDir = path.join(root, "public", "musict");
+  const metadataPath = path.join(root, "music-metadata.json");
 
   // Ensure directories exist
   [musicDir, thumbDir].forEach(dir => {
