@@ -1,0 +1,11 @@
+{
+  "tracks": [
+    {
+      "filename": "song1.mp3",
+      "title": "Song Title",
+      "genre": "Pop",
+      "thumbnail": "cover1.jpg"
+    }
+  ],
+  "genres": ["Pop", "Country", "EDM", "Techno", "Ambient", "Jazz"]
+}

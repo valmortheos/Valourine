@@ -12,46 +12,77 @@ async function startServer() {
   const PORT = 3000;
 
   const musicDir = path.join(__dirname, "music");
-  if (!fs.existsSync(musicDir)) {
-    fs.mkdirSync(musicDir);
-  }
+  const thumbDir = path.join(__dirname, "musict");
+  const metadataPath = path.join(__dirname, "music-metadata.json");
+
+  // Ensure directories exist
+  [musicDir, thumbDir].forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  });
 
   // API to list tracks
   app.get("/api/tracks", (req, res) => {
     try {
+      let metadata: any = { tracks: [] };
+      if (fs.existsSync(metadataPath)) {
+        metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
+      }
+
       const files = fs.readdirSync(musicDir);
       const audioExtensions = [".mp3", ".wav", ".opus", ".flac", ".m4a"];
-      const imageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
-
+      
       const tracks = files
         .filter((file) => audioExtensions.includes(path.extname(file).toLowerCase()))
         .map((file) => {
-          const name = path.parse(file).name;
-          const ext = path.extname(file);
+          const fileName = file;
+          const nameOnly = path.parse(file).name;
           
-          // Find matching thumbnail
-          const thumbnail = files.find((f) => {
-            const fName = path.parse(f).name;
-            const fExt = path.extname(f).toLowerCase();
-            return fName === name && imageExtensions.includes(fExt);
-          });
+          // Check if metadata exists for this file
+          const meta = metadata.tracks?.find((m: any) => m.filename === fileName);
+          
+          let thumbnail = meta?.thumbnail 
+            ? `/musict/${meta.thumbnail}` 
+            : null;
+
+          // Auto-find thumbnail if not in meta
+          if (!thumbnail && fs.existsSync(thumbDir)) {
+            const thumbFiles = fs.readdirSync(thumbDir);
+            const found = thumbFiles.find(f => path.parse(f).name === nameOnly);
+            if (found) thumbnail = `/musict/${found}`;
+          }
 
           return {
-            id: name,
-            title: name,
+            id: nameOnly,
+            title: meta?.title || nameOnly,
+            genre: meta?.genre || "Unknown",
             url: `/music/${file}`,
-            thumbnail: thumbnail ? `/music/${thumbnail}` : "https://picsum.photos/seed/music/400/400",
+            thumbnail: thumbnail || `https://picsum.photos/seed/${encodeURIComponent(nameOnly)}/400/400`,
           };
         });
 
       res.json(tracks);
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Failed to list tracks" });
     }
   });
 
-  // Serve music folder
+  // API for genres
+  app.get("/api/genres", (req, res) => {
+    try {
+      if (fs.existsSync(metadataPath)) {
+        const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
+        return res.json(metadata.genres || []);
+      }
+      res.json(["Pop", "Country", "EDM", "Techno", "Ambient", "Jazz"]);
+    } catch (e) {
+      res.json(["Pop", "Country", "EDM", "Techno", "Ambient", "Jazz"]);
+    }
+  });
+
+  // Serve folders
   app.use("/music", express.static(musicDir));
+  app.use("/musict", express.static(thumbDir));
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

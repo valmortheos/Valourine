@@ -10,8 +10,7 @@ interface TrackListProps {
 
 export const TrackList: React.FC<TrackListProps> = ({ tracks, currentTrackId, onTrackSelect }) => {
   return (
-    <div className="flex flex-col gap-4 p-4 pb-32">
-      <h2 className="text-2xl font-bold mb-2">Your Library</h2>
+    <div className="flex flex-col gap-4 pb-32">
       {tracks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
           <Music size={48} className="mb-4 opacity-20" />
@@ -49,7 +48,9 @@ export const TrackList: React.FC<TrackListProps> = ({ tracks, currentTrackId, on
               <h3 className={`font-semibold text-sm truncate pr-2 ${currentTrackId === track.id ? 'text-black' : 'text-slate-800'}`}>
                 {track.title}
               </h3>
-              <p className="text-[10px] text-slate-500 font-bold truncate uppercase tracking-wider">Local Track</p>
+              <p className="text-[10px] text-slate-500 font-bold truncate uppercase tracking-wider">
+                {track.genre || 'Local Track'}
+              </p>
             </div>
             <div className={`p-2 rounded-full ${currentTrackId === track.id ? 'bg-black text-white' : 'bg-black/5 text-slate-400'}`}>
               <Play size={14} className={currentTrackId === track.id ? 'fill-current' : ''} />

@@ -31,36 +31,22 @@ export default function App() {
   useEffect(() => {
     initDB();
 
-    const fetchWithCheck = async (url: string) => {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error(`Expected JSON but received ${contentType || 'unknown content'}`);
-      }
-      
-      return res.json();
-    };
-
     const loadTracks = async () => {
       try {
-        const data = await fetchWithCheck('/api/tracks');
-        if (Array.isArray(data) && data.length > 0) {
-          setTracks(data);
-          return;
-        }
-        throw new Error('API returned empty tracks');
-      } catch (apiErr) {
-        console.warn('API fetch failed, trying static fallback:', apiErr);
+        const res = await fetch('/api/tracks');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         
-        try {
-          const staticData = await fetchWithCheck('./tracks.json');
-          setTracks(Array.isArray(staticData) ? staticData : []);
-        } catch (staticErr) {
-          console.error('All fetch attempts failed:', staticErr);
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await res.json();
+          setTracks(Array.isArray(data) ? data : []);
+        } else {
+          console.warn('API returned non-JSON response, likely a server error');
           setTracks([]);
         }
+      } catch (err) {
+        console.error('Failed to load tracks:', err);
+        setTracks([]);
       }
     };
 
@@ -229,11 +215,10 @@ export default function App() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-screen">
         <header className="px-6 pt-10 pb-10 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900">Valourine</h1>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-0.5">Your Purity, Refined</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Valourine</h1>
           </div>
-          <div className="p-3 bg-white/40 backdrop-blur-xl rounded-2xl border border-white/60 shadow-sm hidden sm:block">
-            <p className="text-[10px] font-black uppercase text-slate-900">{activeTab}</p>
+          <div className="p-2.5 bg-white/40 backdrop-blur-xl rounded-xl border border-white/60 shadow-sm hidden sm:block">
+            <p className="text-[10px] font-bold uppercase text-slate-500 tracking-wider px-2">{activeTab}</p>
           </div>
         </header>
 
