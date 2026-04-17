@@ -9,4 +9,7 @@ coverage/
 
 music/
 musict/
-public/
+public/music/*
+!public/music/.gitkeep
+public/musict/*
+!public/musict/.gitkeep
