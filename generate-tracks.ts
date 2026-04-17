@@ -12,9 +12,17 @@ const publicMusicDir = path.join(__dirname, 'public', 'music');
 if (!fs.existsSync(path.join(__dirname, 'public'))) {
   fs.mkdirSync(path.join(__dirname, 'public'), { recursive: true });
 }
-if (!fs.existsSync(publicMusicDir)) {
+
+// Clear public/music if it exists
+if (fs.existsSync(publicMusicDir)) {
+  const existingFiles = fs.readdirSync(publicMusicDir);
+  existingFiles.forEach(file => fs.unlinkSync(path.join(publicMusicDir, file)));
+} else {
   fs.mkdirSync(publicMusicDir, { recursive: true });
 }
+
+// Clear tracks.json
+fs.writeFileSync(path.join(__dirname, 'public', 'tracks.json'), '[]');
 
 // Copy music files to public for static hosting
 if (fs.existsSync(musicDir)) {

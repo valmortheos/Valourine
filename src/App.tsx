@@ -4,12 +4,16 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { AnimatePresence } from 'motion/react';
-import { TrackList } from './components/TrackList';
+import { AnimatePresence, motion } from 'motion/react';
 import { MiniPlayer } from './components/MiniPlayer';
 import { FullPlayer } from './components/FullPlayer';
+import { Navigation } from './components/Navigation';
+import { Home } from './components/pages/Home';
+import { Explore } from './components/pages/Explore';
+import { Library } from './components/pages/Library';
 import { Track } from './types';
 import { useColorExtractor } from './hooks/useColorExtractor';
+import { initDB, getCachedAudio, cacheAudio } from './services/dbService';
 
 export default function App() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -19,11 +23,14 @@ export default function App() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isFullPlayer, setIsFullPlayer] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const colors = useColorExtractor(currentTrack?.thumbnail);
 
   useEffect(() => {
+    initDB();
+
     const fetchWithCheck = async (url: string) => {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -38,7 +45,6 @@ export default function App() {
 
     const loadTracks = async () => {
       try {
-        // 1. Try internal API (Dev/Local)
         const data = await fetchWithCheck('/api/tracks');
         if (Array.isArray(data) && data.length > 0) {
           setTracks(data);
@@ -49,7 +55,6 @@ export default function App() {
         console.warn('API fetch failed, trying static fallback:', apiErr);
         
         try {
-          // 2. Try static tracks.json (GitHub Pages fallback)
           const staticData = await fetchWithCheck('./tracks.json');
           setTracks(Array.isArray(staticData) ? staticData : []);
         } catch (staticErr) {
@@ -61,7 +66,6 @@ export default function App() {
 
     loadTracks();
 
-    // Request notification permission
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
@@ -76,10 +80,6 @@ export default function App() {
       album: 'Internal Music',
       artwork: [
         { src: currentTrack.thumbnail, sizes: '96x96', type: 'image/jpeg' },
-        { src: currentTrack.thumbnail, sizes: '128x128', type: 'image/jpeg' },
-        { src: currentTrack.thumbnail, sizes: '192x192', type: 'image/jpeg' },
-        { src: currentTrack.thumbnail, sizes: '256x256', type: 'image/jpeg' },
-        { src: currentTrack.thumbnail, sizes: '384x384', type: 'image/jpeg' },
         { src: currentTrack.thumbnail, sizes: '512x512', type: 'image/jpeg' },
       ],
     });
@@ -115,7 +115,7 @@ export default function App() {
     }
   }, [isPlaying]);
 
-  const handleTrackSelect = (track: Track) => {
+  const handleTrackSelect = async (track: Track) => {
     if (currentTrack?.id === track.id) {
       togglePlay();
       return;
@@ -125,14 +125,34 @@ export default function App() {
     setIsPlaying(true);
     
     if (audioRef.current) {
-      audioRef.current.src = track.url;
-      audioRef.current.play();
+      // IndexedDB Caching Logic
+      try {
+        const cachedBlob = await getCachedAudio(track.id);
+        if (cachedBlob) {
+          console.log('Playing from cache:', track.title);
+          const blobUrl = URL.createObjectURL(cachedBlob);
+          audioRef.current.src = blobUrl;
+        } else {
+          console.log('Playing from network and caching:', track.title);
+          audioRef.current.src = track.url;
+          
+          // Fetch and cache for next time
+          fetch(track.url)
+            .then(res => res.blob())
+            .then(blob => cacheAudio(track.id, blob))
+            .catch(e => console.error('Caching failed', e));
+        }
+        audioRef.current.play();
+      } catch (e) {
+        console.error('Playback/Cache error', e);
+        audioRef.current.src = track.url;
+        audioRef.current.play();
+      }
     }
   };
 
   const togglePlay = () => {
     if (!audioRef.current) return;
-    
     if (isPlaying) {
       audioRef.current.pause();
     } else {
@@ -159,8 +179,10 @@ export default function App() {
     if (!audioRef.current) return;
     const current = audioRef.current.currentTime;
     const total = audioRef.current.duration;
-    setProgress((current / total) * 100);
-    setDuration(total);
+    if (!isNaN(total)) {
+      setProgress((current / total) * 100);
+      setDuration(total);
+    }
   };
 
   const handleSeek = (value: number) => {
@@ -176,12 +198,25 @@ export default function App() {
     setVolume(value);
   };
 
+  const renderPage = () => {
+    switch (activeTab) {
+      case 'home':
+        return <Home tracks={tracks} onTrackSelect={handleTrackSelect} />;
+      case 'explore':
+        return <Explore />;
+      case 'library':
+        return <Library tracks={tracks} currentTrackId={currentTrack?.id} onTrackSelect={handleTrackSelect} />;
+      default:
+        return <Home tracks={tracks} onTrackSelect={handleTrackSelect} />;
+    }
+  };
+
   return (
     <div 
-      className="min-h-screen transition-colors duration-700 ease-in-out overflow-x-hidden"
+      className="min-h-screen transition-colors duration-1000 ease-in-out flex flex-col sm:flex-row-reverse"
       style={{ 
         backgroundColor: colors.primary,
-        backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.9))` 
+        backgroundImage: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)` 
       }}
     >
       <audio
@@ -191,18 +226,33 @@ export default function App() {
         className="hidden"
       />
 
-      <header className="p-8 pt-16">
-        <h1 className="text-5xl font-black tracking-tighter text-slate-900">Valourine</h1>
-        <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">Personal Soundscape</p>
-      </header>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-screen">
+        <header className="px-6 pt-10 pb-10 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900">Valourine</h1>
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-0.5">Your Purity, Refined</p>
+          </div>
+          <div className="p-3 bg-white/40 backdrop-blur-xl rounded-2xl border border-white/60 shadow-sm hidden sm:block">
+            <p className="text-[10px] font-black uppercase text-slate-900">{activeTab}</p>
+          </div>
+        </header>
 
-      <main className="max-w-2xl mx-auto">
-        <TrackList
-          tracks={tracks}
-          currentTrackId={currentTrack?.id}
-          onTrackSelect={handleTrackSelect}
-        />
-      </main>
+        <main className="max-w-4xl mx-auto px-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderPage()}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
+
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       <AnimatePresence>
         {currentTrack && !isFullPlayer && (

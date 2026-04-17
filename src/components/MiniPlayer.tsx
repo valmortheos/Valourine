@@ -24,17 +24,17 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
     <motion.div
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-6 left-4 right-4 bg-white/40 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-3 shadow-2xl z-40 transition-colors"
+      className="fixed bottom-24 left-4 right-4 sm:bottom-6 bg-white/40 backdrop-blur-2xl border border-white/60 rounded-[2rem] p-2 shadow-2xl z-40 transition-colors"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <div 
-          className="relative w-14 h-14 flex-shrink-0 cursor-pointer"
+          className="relative w-11 h-11 flex-shrink-0 cursor-pointer"
           onClick={onExpand}
         >
           <img
             src={track.thumbnail}
             alt={track.title}
-            className="w-full h-full object-cover rounded-[1.5rem] shadow-lg"
+            className="w-full h-full object-cover rounded-[1rem] shadow-md"
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
@@ -50,15 +50,15 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={onTogglePlay}
-            className="p-3 rounded-full bg-black text-white hover:scale-105 active:scale-95 shadow-lg transition-all"
+            className="p-2.5 rounded-full bg-black text-white hover:scale-105 active:scale-95 shadow-md transition-all"
           >
-            {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+            {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
           </button>
           <button
             onClick={onNext}
-            className="p-3 rounded-full hover:bg-white/10 transition-all"
+            className="p-2.5 rounded-full hover:bg-black/5 transition-all text-slate-400"
           >
-            <SkipForward size={20} />
+            <SkipForward size={18} />
           </button>
         </div>
       </div>

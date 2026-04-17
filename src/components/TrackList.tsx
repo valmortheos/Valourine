@@ -22,17 +22,17 @@ export const TrackList: React.FC<TrackListProps> = ({ tracks, currentTrackId, on
           <button
             key={track.id}
             onClick={() => onTrackSelect(track)}
-            className={`flex items-center gap-4 p-4 rounded-[2.5rem] transition-all active:scale-95 border border-white/40 backdrop-blur-md ${
+            className={`flex items-center gap-3 p-3 rounded-[1.5rem] transition-all active:scale-95 border border-white/40 backdrop-blur-md ${
               currentTrackId === track.id
-                ? 'bg-white/60 shadow-xl'
-                : 'bg-white/30 hover:bg-white/40 shadow-sm'
+                ? 'bg-white/60 shadow-lg'
+                : 'bg-white/20 hover:bg-white/30 shadow-sm'
             }`}
           >
-            <div className="relative w-14 h-14 flex-shrink-0">
+            <div className="relative w-11 h-11 flex-shrink-0">
               <img
                 src={track.thumbnail}
                 alt={track.title}
-                className="w-full h-full object-cover rounded-xl shadow-md"
+                className="w-full h-full object-cover rounded-[1rem] shadow-sm"
                 referrerPolicy="no-referrer"
               />
               {currentTrackId === track.id && (
@@ -46,13 +46,13 @@ export const TrackList: React.FC<TrackListProps> = ({ tracks, currentTrackId, on
               )}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <h3 className={`font-semibold truncate pr-2 ${currentTrackId === track.id ? 'text-black' : 'text-slate-800'}`}>
+              <h3 className={`font-semibold text-sm truncate pr-2 ${currentTrackId === track.id ? 'text-black' : 'text-slate-800'}`}>
                 {track.title}
               </h3>
-              <p className="text-xs text-slate-500 font-medium truncate uppercase tracking-wider">Local Track</p>
+              <p className="text-[10px] text-slate-500 font-bold truncate uppercase tracking-wider">Local Track</p>
             </div>
-            <div className={`p-3 rounded-full ${currentTrackId === track.id ? 'bg-black text-white' : 'bg-black/5 text-slate-400'}`}>
-              <Play size={16} className={currentTrackId === track.id ? 'fill-current' : ''} />
+            <div className={`p-2 rounded-full ${currentTrackId === track.id ? 'bg-black text-white' : 'bg-black/5 text-slate-400'}`}>
+              <Play size={14} className={currentTrackId === track.id ? 'fill-current' : ''} />
             </div>
           </button>
         ))

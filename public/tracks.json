@@ -1,14 +1,1 @@
-[
-  {
-    "id": "Moonlight Sonata",
-    "title": "Moonlight Sonata",
-    "url": "./music/Moonlight Sonata.mp3",
-    "thumbnail": "https://picsum.photos/seed/Moonlight%20Sonata/400/400"
-  },
-  {
-    "id": "Summer Vibes",
-    "title": "Summer Vibes",
-    "url": "./music/Summer Vibes.wav",
-    "thumbnail": "https://picsum.photos/seed/Summer%20Vibes/400/400"
-  }
-]
+[]

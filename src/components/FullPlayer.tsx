@@ -46,17 +46,17 @@ export const FullPlayer: React.FC<FullPlayerProps> = ({
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="fixed inset-0 z-50 flex flex-col p-8 bg-white/40 backdrop-blur-3xl overflow-hidden"
     >
-      <div className="flex justify-between items-center mb-8">
-        <button onClick={onClose} className="p-3 rounded-full bg-black/5 text-slate-900 hover:bg-black/10 transition-all">
-          <ChevronDown size={28} />
+      <div className="flex justify-between items-center mb-6">
+        <button onClick={onClose} className="p-2 rounded-full bg-black/5 text-slate-900 hover:bg-black/10 transition-all">
+          <ChevronDown size={24} />
         </button>
         <div className="text-center">
-          <p className="text-xs font-black tracking-[0.2em] uppercase text-black/40">Now Playing</p>
+          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-black/40">Now Playing</p>
         </div>
-        <div className="w-12" />
+        <div className="w-10" />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-10 max-w-md mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center justify-center gap-8 max-w-sm mx-auto w-full">
         <motion.div
           layoutId="album-art"
           className="w-full aspect-square relative"
@@ -64,7 +64,7 @@ export const FullPlayer: React.FC<FullPlayerProps> = ({
           <img
             src={track.thumbnail}
             alt={track.title}
-            className="w-full h-full object-cover rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] ring-1 ring-white/40"
+            className="w-full h-full object-cover rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] ring-1 ring-white/40"
             referrerPolicy="no-referrer"
           />
         </motion.div>
@@ -73,7 +73,7 @@ export const FullPlayer: React.FC<FullPlayerProps> = ({
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-black text-slate-900 mb-1 truncate"
+            className="text-2xl font-black text-slate-900 mb-0.5 truncate"
           >
             {track.title}
           </motion.h2>
@@ -81,7 +81,7 @@ export const FullPlayer: React.FC<FullPlayerProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg font-semibold text-slate-500"
+            className="text-base font-bold text-slate-400"
           >
             Local Track
           </motion.p>
@@ -116,18 +116,18 @@ export const FullPlayer: React.FC<FullPlayerProps> = ({
           <button className="p-2 text-slate-400 hover:text-black transition-all">
             <Shuffle size={24} />
           </button>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             <button onClick={onPrev} className="p-2 text-slate-900 hover:scale-110 active:scale-90 transition-all">
-              <SkipBack size={36} fill="currentColor" />
+              <SkipBack size={28} fill="currentColor" />
             </button>
             <button
               onClick={onTogglePlay}
-              className="w-24 h-24 flex items-center justify-center rounded-full bg-black text-white hover:scale-105 active:scale-95 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-all"
+              className="w-16 h-16 flex items-center justify-center rounded-full bg-black text-white hover:scale-105 active:scale-95 shadow-lg transition-all"
             >
-              {isPlaying ? <Pause size={42} fill="currentColor" /> : <Play size={42} fill="currentColor" className="ml-1" />}
+              {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
             </button>
             <button onClick={onNext} className="p-2 text-slate-900 hover:scale-110 active:scale-90 transition-all">
-              <SkipForward size={36} fill="currentColor" />
+              <SkipForward size={28} fill="currentColor" />
             </button>
           </div>
           <button className="p-2 text-slate-400 hover:text-black transition-all">
