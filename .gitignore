@@ -7,9 +7,7 @@ coverage/
 .env*
 !.env.example
 
-music/
-musict/
-public/music/*
-!public/music/.gitkeep
-public/musict/*
-!public/musict/.gitkeep
+music/*
+!music/.gitkeep
+musict/*
+!musict/.gitkeep

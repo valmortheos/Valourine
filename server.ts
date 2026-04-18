@@ -12,8 +12,8 @@ async function startServer() {
   const PORT = 3000;
 
   const root = process.cwd();
-  const musicDir = path.join(root, "public", "music");
-  const thumbDir = path.join(root, "public", "musict");
+  const musicDir = path.join(root, "music");
+  const thumbDir = path.join(root, "musict");
   const metadataPath = path.join(root, "music-metadata.json");
 
   // Ensure directories exist
