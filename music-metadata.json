@@ -1,10 +1,10 @@
 {
   "tracks": [
     {
-      "filename": "song1.mp3",
-      "title": "Song Title",
-      "genre": "Pop",
-      "thumbnail": "cover1.jpg"
+      "filename": "Noah Kahan - No Complaints.flac",
+      "title": "No Complaints",
+      "genre": "Folk-Pop",
+      "thumbnail": "Noah Kahan - No Complaints.png"
     }
   ],
   "genres": ["Pop", "Country", "EDM", "Techno", "Ambient", "Jazz"]

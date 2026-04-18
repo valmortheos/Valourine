@@ -33,15 +33,37 @@ export default function App() {
 
     const loadTracks = async () => {
       try {
+        // First attempt: Call the Express API (works in AI Studio/Full-stack)
         const res = await fetch('/api/tracks');
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         
-        const contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const data = await res.json();
-          setTracks(Array.isArray(data) ? data : []);
+        if (res.ok) {
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await res.json();
+            setTracks(Array.isArray(data) ? data : []);
+            return;
+          }
+        }
+
+        // Fallback: If 404 or not JSON (e.g., Static Hosting like GitHub Pages)
+        // We attempt to fetch the static metadata file instead
+        console.log('API not found or invalid, trying static fallback...');
+        const staticRes = await fetch('/music-metadata.json');
+        if (staticRes.ok) {
+          const data = await staticRes.json();
+          // Transform metadata to Track format
+          const formattedTracks = (data.tracks || []).map((t: any) => {
+            const nameOnly = t.filename.split('.').slice(0, -1).join('.') || t.filename;
+            return {
+              id: nameOnly,
+              title: t.title || nameOnly,
+              genre: t.genre || 'Unknown',
+              url: `/music/${t.filename}`,
+              thumbnail: t.thumbnail ? `/musict/${t.thumbnail}` : `https://picsum.photos/seed/${encodeURIComponent(t.filename)}/400/400`
+            };
+          });
+          setTracks(formattedTracks);
         } else {
-          console.warn('API returned non-JSON response, likely a server error');
           setTracks([]);
         }
       } catch (err) {
